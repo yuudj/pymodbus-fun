@@ -1,0 +1,37 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "Pymodbus ",
+	"dockerComposeFile": "docker-compose.yaml",
+	"service": "app",
+  	"workspaceFolder": "/workspace",
+  	"shutdownAction": "stopCompose",
+	"remoteUser": "root",
+	"postCreateCommand": "python3 -m pip install -r requirements.txt",
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {},
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ms-python.python",
+				"ms-python.pylint",
+				"eamodio.gitlens"
+			],
+			// Set *default* container specific settings.json values on container create.
+			"settings": { 
+				"python.defaultInterpreterPath": "/usr/local/bin/python",
+				"pylint.enabled": true,
+				"pylint.args": [
+					"--disable=C0114,C0115,C0116"
+				]
+			}
+		}
+	},
+	
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [8081]
+	
+}
