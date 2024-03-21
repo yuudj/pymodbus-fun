@@ -27,9 +27,6 @@ services:
     #   - SYS_PTRACE
     # security_opt:
     #   - seccomp:unconfined
-    networks:
-      - internal
-      - external
   influxdb:
     image: influxdb:${INFLUX_VERSION}
     restart: unless-stopped
@@ -49,9 +46,6 @@ services:
       interval: 3s
       timeout: 10s
       retries: 5
-    networks:
-      - internal
-      - external
   telegraf:
     image: telegraf:${TELEGRAF_VERSION}
     restart: unless-stopped
@@ -69,11 +63,3 @@ services:
         condition: service_completed_successfully
     devices:
       - "/dev/ttyUSB1:/dev/ttyUSB1"
-    networks:
-      - internal
-volumes:
-  influxdb-lib: {}
-networks:
-  internal: {} 
-  external:
-    driver: bridge
