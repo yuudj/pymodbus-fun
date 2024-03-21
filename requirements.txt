@@ -1,3 +1,0 @@
-aiohttp
-pymodbus
-pymodbus[serial]

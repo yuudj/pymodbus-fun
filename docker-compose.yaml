@@ -1,0 +1,67 @@
+services:
+  modbus-emul:
+    privileged: true
+    restart: unless-stopped
+    build:
+      context: ./modbus-emul
+      dockerfile: ./Dockerfile
+    
+    networks:
+      - external
+      - internal
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+  telegraf:
+    image: telegraf:${TELEGRAF_VERSION}
+    restart: unless-stopped
+    container_name: telegraf
+    environment:
+      HOSTNAME: telegraf
+      TZ: ${TZ}
+      INFLUXDB_INIT_ORG: ${INFLUXDB_INIT_ORG}
+      INFLUXDB_INIT_BUCKET: ${INFLUXDB_INIT_BUCKET}
+      INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
+    volumes:
+      # Mount for telegraf configuration
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+    depends_on:
+      influxdb: 
+        condition: service_healthy
+      modbus-emul:
+        condition: service_started 
+    networks:
+      - internal
+    devices:
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+  influxdb:
+    image: influxdb:${INFLUX_VERSION}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: supersecret
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_INIT_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_INIT_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_RETENTION: 1w
+    # - DOCKER_INFLUXDB_INIT_MODE=upgrade
+    volumes:
+      - influxdb-lib:/var/lib/influxdb2
+    command: influxd --reporting-disabled
+    ports:
+      - 8086:8086
+    healthcheck:
+      test: "curl -f http://localhost:8086/ping"
+      interval: 3s
+      timeout: 10s
+      retries: 5
+    networks:
+      - external
+      - internal
+volumes:
+  influxdb-lib: {}
+networks:
+  internal: {} 
+  external:
+    driver: bridge
