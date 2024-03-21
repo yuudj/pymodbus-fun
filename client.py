@@ -112,4 +112,4 @@ def run_sync_simple_client(comm, host, port, framer=Framer.SOCKET):
 
 
 if __name__ == "__main__":
-    run_sync_simple_client("serial", "" , "/dev/ttyUSB0",Framer.RTU)  # pragma: no cover
+    run_sync_simple_client("serial", "" , "/dev/ttyUSB1",Framer.RTU)  # pragma: no cover
