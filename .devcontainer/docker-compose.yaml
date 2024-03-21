@@ -22,9 +22,58 @@ services:
     # maps /dev/ttyS3 (COM3 in windows) TO /dev/ttyS0
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
-      - "/dev/ttyUSB1:/dev/ttyUSB1"
     # Uncomment the next four lines if you will use a ptrace-based debugger like C++, Go, and Rust.
     # cap_add:
     #   - SYS_PTRACE
     # security_opt:
     #   - seccomp:unconfined
+    networks:
+      - internal
+      - external
+  influxdb:
+    image: influxdb:${INFLUX_VERSION}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: supersecret
+      DOCKER_INFLUXDB_INIT_ORG: unahur
+      DOCKER_INFLUXDB_INIT_BUCKET: arqsw
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-super-secret-auth-token
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_RETENTION: 1w
+    # - DOCKER_INFLUXDB_INIT_MODE=upgrade
+    command: influxd --reporting-disabled
+    healthcheck:
+      test: "curl -f http://localhost:8086/ping"
+      interval: 3s
+      timeout: 10s
+      retries: 5
+    networks:
+      - internal
+      - external
+  telegraf:
+    image: telegraf:${TELEGRAF_VERSION}
+    restart: unless-stopped
+    container_name: telegraf
+    environment:
+      HOSTNAME: telegraf
+      TZ: ${TZ}
+    volumes:
+      # Mount for telegraf configuration
+      - ../telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+    depends_on:
+      influxdb: 
+        condition: service_started
+      load-users:
+        condition: service_completed_successfully
+    devices:
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+    networks:
+      - internal
+volumes:
+  influxdb-lib: {}
+networks:
+  internal: {} 
+  external:
+    driver: bridge

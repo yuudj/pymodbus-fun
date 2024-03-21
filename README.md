@@ -77,3 +77,8 @@ otra alternativa  en el devcontainer
 
 ## SIMULADOR
 pymodbus.simulator --json_file ./setup.json --modbus_server server_try_serial
+
+
+USANDO TELEGRAPH
+
+https://vleeckf.medium.com/weekend-project-energy-monitoring-with-telegraf-modbus-influxdb-flux-and-grafana-770480136410

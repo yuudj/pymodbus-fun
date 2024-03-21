@@ -72,7 +72,7 @@
             4,
             5
           ],
-          "value": 617001,
+          "value": 617021,
           "action": null
         },
         [
@@ -86,12 +86,10 @@
             6,
             7
           ],
-          "value": 404.17
+          "value": 404.17,
+          "action": null
         },
-        [
-          4100,
-          4101
-        ]
+        {"addr": [4184, 4185], "value": 1.45,"action": null}
       ],
       "string": [
         5047,

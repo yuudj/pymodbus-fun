@@ -14,6 +14,9 @@ The corresponding server must be started before e.g. as:
 # import the various client implementations
 # --------------------------------------------------------------------------- #
 import pymodbus.client as ModbusClient
+from pymodbus.payload import BinaryPayloadDecoder
+from pymodbus.constants import Endian
+
 from pymodbus import (
     ExceptionResponse,
     Framer,
@@ -93,20 +96,23 @@ def run_sync_simple_client(comm, host, port, framer=Framer.SOCKET):
     print("get and verify data")
     try:
         #rr = client.read_coils(3, 1, slave=1)
-        rr = client.read_holding_registers(3)
+        result = client.read_holding_registers(4184, 2, slave=1)
+        decoder = BinaryPayloadDecoder.fromRegisters(result.registers,
+                                                     byteorder=Endian.BIG,
+                                                     wordorder=Endian.LITTLE)
     except ModbusException as exc:
         print(f"Received ModbusException({exc}) from library")
         client.close()
         return
-    if rr.isError():  # pragma no cover
-        print(f"Received Modbus library error({rr})")
+    if result.isError():  # pragma no cover
+        print(f"Received Modbus library error({result})")
         client.close()
         return
-    if isinstance(rr, ExceptionResponse):  # pragma no cover
-        print(f"Received Modbus library exception ({rr})")
+    if isinstance(result, ExceptionResponse):  # pragma no cover
+        print(f"Received Modbus library exception ({result})")
         # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
         client.close()
-    print(rr.registers)
+    print(decoder.decode_16bit_float())
     print("close connection")  # pragma no cover
     client.close()  # pragma no cover
 
