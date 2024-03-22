@@ -9,7 +9,7 @@ https://github.com/dorssel/usbipd-win
 
 
 Todos estos comandos se ejecutan en una condola de poweshell en HOST
-``` bash
+``` powershell
 # Listamos los dipositivos USB en host.
 $ usbipd list
 
@@ -29,8 +29,8 @@ $ usbipd list
 Connected:
 BUSID  VID:PID    DEVICE                                                        STATE
 3-4    14cd:8168  USB Mass Storage Device                                       Not shared
-4-3    1a86:7523  USB-SERIAL CH340                                              Not shared
-4-4    046d:c52b  Logitech USB Input Device, USB Input Device                   Shared
+4-3    1a86:7523  USB-SERIAL CH340                                              Shared
+4-4    046d:c52b  Logitech USB Input Device, USB Input Device                   Not shared
 ```
 ### Work arround docker.desktop
 Ahora solo falta hacer attach del dispositivo a wsl. Las distribuciones wsl de Docker-Desktop (docker-deskto , docker.desktop-data) son especiales, y usbipd no funciona directamente. Es por eso que tenemos que instalar una distro wsl Ubuntu para que nos ayude, se puede hacer desde [Windows Store](https://apps.microsoft.com/detail/9PDXGNCFSCZV).
@@ -39,14 +39,15 @@ Fuente: https://github.com/dorssel/usbipd-win/issues/669#issuecomment-1686086810
 
 Una vez instalada la diritribucion de Ubuntu se debe hacer un attach a wsl  con el siguiente comando
 
-```bash
-usbipd wsl attach --distribution <<nombre de la nueva distribucion>>
+```powershell
+wsl --setdefault Ubuntu 
+usbipd attach --wsl --busid 4-3
 ```
 
 ### Verificacion
 Desde PowerShell ingresamos a la distribucion wsl `docker-desktop` con el siguiente comando
 
-``` bash
+``` powershell
 wsl --distribution docker-desktop
 ```
 Esto iniciara una consola dentro del linux que maneja docker-desktop dentro en esa linea de comando podemos hacer un `ls /dev/` y podrebos obervar un elemento `ttyUSB0` correspondiente a nuestro dispositivo USB.

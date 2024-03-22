@@ -61,7 +61,7 @@
       "uint16": [
         {
           "addr": 3,
-          "value": 17002,
+          "value": 17004,
           "action": null
         },
         2100
@@ -81,17 +81,11 @@
         ]
       ],
       "float32": [
-        {
-          "addr": [
-            6,
-            7
-          ],
-          "value": 404.17
-        },
-        [
-          4100,
-          4101
-        ]
+        [6, 7],
+        {"addr": [8, 9], "value": 3123.17},
+        {"addr": [10, 13], "value": 712.5, "action": "increment"},
+        {"addr": [14, 15],"value": 0, "action": "random"},
+        {"addr": [21, 22],"value": 0, "action": "uptime"}
       ],
       "string": [
         5047,

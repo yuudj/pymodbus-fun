@@ -14,6 +14,8 @@ The corresponding server must be started before e.g. as:
 # import the various client implementations
 # --------------------------------------------------------------------------- #
 import pymodbus.client as ModbusClient
+from pymodbus.constants import Endian
+from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus import (
     ExceptionResponse,
     Framer,
@@ -92,21 +94,35 @@ def run_sync_simple_client(comm, host, port, framer=Framer.SOCKET):
 
     print("get and verify data")
     try:
-        #rr = client.read_coils(3, 1, slave=1)
-        rr = client.read_holding_registers(3)
+        #int_16 = client.read_holding_registers(3, 1, slave=1)
+        #int_32 = client.read_holding_registers(5, 2, slave=1)
+        float_32= client.read_holding_registers(8,count=2)
+        float_32_inc = client.read_holding_registers(10,count=4)
+        float_32_random = client.read_holding_registers(14,count=2)
+        float_32_uptime = client.read_holding_registers(21,count=2)
     except ModbusException as exc:
         print(f"Received ModbusException({exc}) from library")
         client.close()
         return
-    if rr.isError():  # pragma no cover
-        print(f"Received Modbus library error({rr})")
+    if float_32.isError():  # pragma no cover
+        print(f"Received Modbus library error({float_32})")
         client.close()
         return
-    if isinstance(rr, ExceptionResponse):  # pragma no cover
-        print(f"Received Modbus library exception ({rr})")
+    if isinstance(float_32, ExceptionResponse):  # pragma no cover
+        print(f"Received Modbus library exception ({float_32})")
         # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
         client.close()
-    print(rr.registers)
+    
+    floats_32= [
+        BinaryPayloadDecoder.fromRegisters(float_32.registers, byteorder=Endian.BIG, wordorder=Endian.BIG),
+        BinaryPayloadDecoder.fromRegisters(float_32_inc.registers, byteorder=Endian.BIG, wordorder=Endian.BIG),
+        BinaryPayloadDecoder.fromRegisters(float_32_random.registers, byteorder=Endian.BIG, wordorder=Endian.BIG),
+        BinaryPayloadDecoder.fromRegisters(float_32_uptime.registers, byteorder=Endian.BIG, wordorder=Endian.BIG)
+        ]
+
+    for x in floats_32:
+      print(x.decode_32bit_float())
+    
     print("close connection")  # pragma no cover
     client.close()  # pragma no cover
 
