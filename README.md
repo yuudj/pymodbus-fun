@@ -39,16 +39,19 @@ Fuente: https://github.com/dorssel/usbipd-win/issues/669#issuecomment-1686086810
 
 Una vez instalada la diritribucion de Ubuntu se debe hacer un attach a wsl  con el siguiente comando
 
-```bash
-usbipd wsl attach --distribution <<nombre de la nueva distribucion>>
+```powershell
+wsl --setdefault Ubuntu 
+usbipd attach --wsl --busid 4-3
 ```
 
 ### Verificacion
 Desde PowerShell ingresamos a la distribucion wsl `docker-desktop` con el siguiente comando
 
-``` bash
+
+``` powershell
 wsl --distribution docker-desktop
 ```
+
 Esto iniciara una consola dentro del linux que maneja docker-desktop dentro en esa linea de comando podemos hacer un `ls /dev/` y podrebos obervar un elemento `ttyUSB0` correspondiente a nuestro dispositivo USB.
 
 
