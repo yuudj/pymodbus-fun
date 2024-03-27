@@ -87,7 +87,7 @@
             7
           ],
           "value": 404.17,
-          "action": null
+          "action": "increment"
         },
         {"addr": [4184, 4185], "value": 1.45,"action": null}
       ],

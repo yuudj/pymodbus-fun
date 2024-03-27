@@ -68,13 +68,12 @@ usbipd unbind -b 4-3
 
 otra alternativa  en el devcontainer
 
-```
- "runArgs": [
-        "--device=/dev/ttyUSB0"
-    ],
+```bash
+docker compose --project-name modbus up -d
+docker compose --project-name modbus down -v
 
 ```
-
+docker compose --project-name iot down -v
 ## SIMULADOR
 pymodbus.simulator --json_file ./setup.json --modbus_server server_try_serial
 
