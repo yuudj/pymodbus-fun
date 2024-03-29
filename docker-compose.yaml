@@ -15,6 +15,10 @@ services:
     image: telegraf:${TELEGRAF_VERSION}
     restart: unless-stopped
     container_name: telegraf
+    user: 1000:1000
+    group_add:
+      #- dialout
+      - 20
     environment:
       HOSTNAME: telegraf
       TZ: ${TZ}
