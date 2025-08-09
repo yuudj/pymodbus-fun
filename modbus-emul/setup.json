@@ -89,7 +89,14 @@
           "value": 404.17,
           "action": "increment"
         },
-        {"addr": [4184, 4185], "value": 1.45,"action": null}
+        {
+          "addr": [
+            4184,
+            4185
+          ],
+          "value": 1.45,
+          "action": null
+        }
       ],
       "string": [
         5047,
@@ -103,6 +110,5 @@
       ],
       "repeat": []
     }
-    
   }
 }

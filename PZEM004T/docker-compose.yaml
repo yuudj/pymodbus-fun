@@ -1,0 +1,125 @@
+services:
+  telegraf:
+    image: telegraf:${TELEGRAF_VERSION}
+    restart: unless-stopped
+    container_name: telegraf
+    user: 1000:1000
+    group_add:
+      #- dialout
+      - 20
+    environment:
+      HOSTNAME: telegraf
+      TZ: ${TZ}
+      INFLUXDB_INIT_ORG: ${INFLUXDB_INIT_ORG}
+      INFLUXDB_INIT_BUCKET: ${INFLUXDB_INIT_BUCKET}
+      INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
+
+      MQTT_SERVER: tcp://emqx:1883
+      MQTT_TOPIC: "home/energymeter"
+      MQTT_USER: "client2"
+      MQTT_PASSWORD: "frutita"
+    volumes:
+      # Mount for telegraf configuration
+      - ./telegraf_PZEM004T.conf:/etc/telegraf/telegraf.conf
+    depends_on:
+      #modbus-emul:
+      #  condition: service_started
+      emqx:
+        condition: service_started
+    networks:
+      - internal
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+  influxdb:
+    image: influxdb:${INFLUX_VERSION}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: supersecret
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_INIT_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_INIT_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_RETENTION: 1w
+    # - DOCKER_INFLUXDB_INIT_MODE=upgrade
+    volumes:
+      - influxdb-lib:/var/lib/influxdb2
+    command: influxd --reporting-disabled
+    ports:
+      - 8086:8086
+    healthcheck:
+      test: "curl -f http://localhost:8086/ping"
+      interval: 3s
+      timeout: 10s
+      retries: 5
+    networks:
+      - external
+      - internal
+  emqx:
+    container_name: emqx
+    image: emqx/emqx:latest
+    restart: unless-stopped
+    ports:
+      - 18083:18083
+      - 18084:18084
+      - 1883:1883
+      - 18884:8883
+      - 8083:8083
+      - 8084:8084
+      - 8085:8081
+    networks:
+      - external
+      - internal
+    volumes:
+      - '../emqx/api-keys.txt:/tmp/api-keys.txt'
+    environment:
+      EMQX_NAME: mi-emqtt
+      EMQX_HOST: 127.0.0.1
+      EMQX_ALLOW_ANONYMOUS: "false"
+      EMQX_NOMATCH: "deny"
+      TZ: ${TZ}
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: "fruta"
+      EMQX_DASHBOARD__DEFAULT_USERNAME: "admin"
+      EMQX_AUTHENTICATION__1__ENABLE: "true"
+      EMQX_LOADED_PLUGINS: "emqx_recon,emqx_retainer,emqx_management,emqx_dashboard,emqx_auth_mnesia"
+      # clave de api https://www.emqx.io/docs/en/latest/admin/api.html
+      # https://www.emqx.io/docs/en/v5.5.0/hocon/#V-api_key
+      EMQX_API_KEY__BOOTSTRAP_FILE: "/tmp/api-keys.txt"
+
+      # configuracion de autenticacion de dispositivos
+      EMQX_AUTHENTICATION__1__BACKEND: "built_in_database"
+      EMQX_AUTHENTICATION__1__MECHANISM: "password_based"
+      EMQX_AUTHENTICATION__1__USER_ID_TYPE: "clientid"
+
+      EMQX_AUTHENTICATION__1__PASSWORD_HASH_ALGORITHM__NAME: "sha256"
+      EMQX_AUTHENTICATION__1__PASSWORD_HASH_ALGORITHM__SALT_POSITION : "prefix"
+
+      # TODO: NO SE SOPORTA LA INICIALIZACION DE USUARIOS MQTT POR VARIABLES DE ENTORNO
+      # https://github.com/emqx/emqx/issues/8714#issuecomment-1939210511
+  load-users:
+    image: quay.io/curl/curl
+    restart: on-failure
+    volumes:
+      - '../emqx/user.json:/tmp/user.json'
+      - '../emqx/user2.json:/tmp/user2.json'
+      - '../emqx/user3.json:/tmp/user3.json'
+    entrypoint: >
+      /bin/sh -c "
+      curl --head -X GET --retry 40 --retry-connrefused --retry-delay 2 http://emqx:18083/status;
+      curl -X POST http://emqx:18083/api/v5/authentication/password_based%3Abuilt_in_database/users -u '4f33d24d7b8e448d:gwtbmFJZrnzUu8mPK1BxUkBA66PygETiDEegkf1q8dD' -H 'Content-Type: application/json'  -d @/tmp/user.json;
+      curl -X POST http://emqx:18083/api/v5/authentication/password_based%3Abuilt_in_database/users -u '4f33d24d7b8e448d:gwtbmFJZrnzUu8mPK1BxUkBA66PygETiDEegkf1q8dD' -H 'Content-Type: application/json'  -d @/tmp/user2.json;
+      curl -X POST http://emqx:18083/api/v5/authentication/password_based%3Abuilt_in_database/users -u '4f33d24d7b8e448d:gwtbmFJZrnzUu8mPK1BxUkBA66PygETiDEegkf1q8dD' -H 'Content-Type: application/json'  -d @/tmp/user3.json;
+      exit 0;
+      "
+    networks:
+      - internal
+    depends_on:
+      emqx:
+        condition: service_started
+volumes:
+  influxdb-lib: {}
+networks:
+  internal: {}
+  external:
+    driver: bridge

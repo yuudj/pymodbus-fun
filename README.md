@@ -1,5 +1,10 @@
 
-# WSL2 Y USB
+# MEDICION DE ENERGIA IOT
+El siguiente proyecto contiene varias pruebas para capturar y almacenar valores de distitnots medidores de energia con interface MODBUS RTU.
+
+
+
+## WSL2 Y USB
 Nos tan facil acceder a dispositiovs USB, que no son storage,  desde docker-desktop en Windows. Necesitamos el `usbipd`.
 Es una herramienta que se instala en host Windows `winget install usbipd`
 
