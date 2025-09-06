@@ -1,0 +1,47 @@
+[
+    {
+        "id": 2,
+        "uid": "eex7xwyp5b6rka",
+        "orgId": 1,
+        "name": "grafana-mqtt-datasource",
+        "type": "grafana-mqtt-datasource",
+        "typeName": "MQTT",
+        "typeLogoUrl": "public/plugins/grafana-mqtt-datasource/img/mqtt.svg",
+        "access": "proxy",
+        "url": "",
+        "user": "",
+        "database": "",
+        "basicAuth": false,
+        "isDefault": false,
+        "jsonData": {
+            "clientID": "client3",
+            "pdcInjected": false,
+            "tlsSkipVerify": true,
+            "uri": "tcp://emqx:1883",
+            "username": "client3"
+        },
+        "readOnly": false
+    },
+    {
+        "id": 1,
+        "uid": "P5697886F9CA74929",
+        "orgId": 1,
+        "name": "InfluxDB_v2_Flux",
+        "type": "influxdb",
+        "typeName": "InfluxDB",
+        "typeLogoUrl": "public/plugins/influxdb/img/influxdb_logo.svg",
+        "access": "proxy",
+        "url": "http://influxdb:8086",
+        "user": "",
+        "database": "",
+        "basicAuth": false,
+        "isDefault": true,
+        "jsonData": {
+            "defaultBucket": "arqsw",
+            "organization": "unahur",
+            "tlsSkipVerify": true,
+            "version": "Flux"
+        },
+        "readOnly": true
+    }
+]

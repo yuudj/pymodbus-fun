@@ -1,0 +1,26 @@
+apiVersion: 1
+datasources:
+  - name: InfluxDB_v2_Flux
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: unahur
+      defaultBucket: arqsw
+      tlsSkipVerify: true
+    secureJsonData:
+      token: my-super-secret-auth-token
+  - name: MQTT
+    type: grafana-mqtt-datasource
+    access: proxy
+    url: tcp://emqx:1883
+    isDefault: true
+    jsonData:
+      uri: "tcp://emqx:1883"
+      clientID: client3
+      username: client3
+      tlsSkipVerify: true
+      pdcInjected: false
+    secureJsonData:
+      password: frutita
